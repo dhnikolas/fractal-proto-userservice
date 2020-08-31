@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package="userservice;userservice";
+option go_package=".;userservice";
 package users;
 
 service Users {
