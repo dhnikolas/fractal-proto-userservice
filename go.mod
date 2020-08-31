@@ -1,4 +1,4 @@
-module github.com/dhnikolas/fractal-proto-userservice
+module github.com/dhnikolas/fractal-proto-userservice/userservice
 
 go 1.14
 
