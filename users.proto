@@ -6,6 +6,7 @@ service Users {
   rpc GetUserTokenByCredentials (Credentials) returns (UserToken) {}
   rpc GetUserTokenByEmail (UserInfo) returns (UserToken) {}
   rpc CreteUser (User) returns (UserState) {}
+  rpc UpdatePassword (Credentials) returns (UserState) {}
 }
 
 message User {

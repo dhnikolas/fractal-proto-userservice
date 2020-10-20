@@ -11,7 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+const _ = grpc.SupportPackageIsVersion7
 
 // UsersClient is the client API for Users service.
 //
@@ -20,6 +20,7 @@ type UsersClient interface {
 	GetUserTokenByCredentials(ctx context.Context, in *Credentials, opts ...grpc.CallOption) (*UserToken, error)
 	GetUserTokenByEmail(ctx context.Context, in *UserInfo, opts ...grpc.CallOption) (*UserToken, error)
 	CreteUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*UserState, error)
+	UpdatePassword(ctx context.Context, in *Credentials, opts ...grpc.CallOption) (*UserState, error)
 }
 
 type usersClient struct {
@@ -57,6 +58,15 @@ func (c *usersClient) CreteUser(ctx context.Context, in *User, opts ...grpc.Call
 	return out, nil
 }
 
+func (c *usersClient) UpdatePassword(ctx context.Context, in *Credentials, opts ...grpc.CallOption) (*UserState, error) {
+	out := new(UserState)
+	err := c.cc.Invoke(ctx, "/users.Users/UpdatePassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -64,6 +74,7 @@ type UsersServer interface {
 	GetUserTokenByCredentials(context.Context, *Credentials) (*UserToken, error)
 	GetUserTokenByEmail(context.Context, *UserInfo) (*UserToken, error)
 	CreteUser(context.Context, *User) (*UserState, error)
+	UpdatePassword(context.Context, *Credentials) (*UserState, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -71,16 +82,26 @@ type UsersServer interface {
 type UnimplementedUsersServer struct {
 }
 
-func (*UnimplementedUsersServer) GetUserTokenByCredentials(context.Context, *Credentials) (*UserToken, error) {
+func (UnimplementedUsersServer) GetUserTokenByCredentials(context.Context, *Credentials) (*UserToken, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserTokenByCredentials not implemented")
 }
-func (*UnimplementedUsersServer) GetUserTokenByEmail(context.Context, *UserInfo) (*UserToken, error) {
+func (UnimplementedUsersServer) GetUserTokenByEmail(context.Context, *UserInfo) (*UserToken, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserTokenByEmail not implemented")
 }
-func (*UnimplementedUsersServer) CreteUser(context.Context, *User) (*UserState, error) {
+func (UnimplementedUsersServer) CreteUser(context.Context, *User) (*UserState, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreteUser not implemented")
 }
-func (*UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
+func (UnimplementedUsersServer) UpdatePassword(context.Context, *Credentials) (*UserState, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePassword not implemented")
+}
+func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
+
+// UnsafeUsersServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to UsersServer will
+// result in compilation errors.
+type UnsafeUsersServer interface {
+	mustEmbedUnimplementedUsersServer()
+}
 
 func RegisterUsersServer(s *grpc.Server, srv UsersServer) {
 	s.RegisterService(&_Users_serviceDesc, srv)
@@ -140,6 +161,24 @@ func _Users_CreteUser_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_UpdatePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Credentials)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).UpdatePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.Users/UpdatePassword",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).UpdatePassword(ctx, req.(*Credentials))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Users_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "users.Users",
 	HandlerType: (*UsersServer)(nil),
@@ -155,6 +194,10 @@ var _Users_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreteUser",
 			Handler:    _Users_CreteUser_Handler,
+		},
+		{
+			MethodName: "UpdatePassword",
+			Handler:    _Users_UpdatePassword_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
